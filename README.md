@@ -6,11 +6,13 @@ librerias permitidas:
 * java.security 
 * javax.crypto
 
+Fecha estimada de que todo este listo: El Viernes 4 de Noviembre
+
 Responsabilidades
 
 | Numero del paso | Responsable de la implementacíon | Resumen |
 | --------------------------------- | -------------------------------- | ------------- |
-|14|  Todos los integrantes |  INFORME DEL CASO 3 |
+|14|  TODOS LOS INTEGRANTES |  INFORME DEL CASO 3 |
 |1|  <nombre integrante>  | Mandar mensaje iniciar conexion |
 |2|  <nombre integrante>  | Servidor Genera parametros (G,P,Gx,x) para DH |
 |3|  <nombre integrante>  | Servidor comparte G, P y Gx con el cliente firmados por su llave privada|
