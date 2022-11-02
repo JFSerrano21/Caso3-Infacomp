@@ -1,4 +1,4 @@
-# Caso3-Infacomp
+# Caso3-Infracomp
 * Juan Felipe Serrano 201921654
 
 
