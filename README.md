@@ -8,7 +8,7 @@ librerias permitidas:
 
 Fecha estimada de que todo este listo: El Viernes 4 de Noviembre
 
-Responsabilidades
+Responsabilidades:
 
 | Numero del paso | Responsable de la implementacíon | Resumen |
 | --------------------------------- | -------------------------------- | ------------- |
