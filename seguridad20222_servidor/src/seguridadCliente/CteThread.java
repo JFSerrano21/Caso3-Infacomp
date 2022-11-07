@@ -7,6 +7,10 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.concurrent.ThreadLocalRandom;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 public class CteThread extends Thread {
     private Socket sc = null;
@@ -91,6 +95,32 @@ public class CteThread extends Thread {
             BigInteger llave_maestra = calcular_llave_maestra(Gx,biy,p);
             String str_llave = llave_maestra.toString();
             System.out.println(dlg + " llave maestra: " + str_llave);
+
+            //Genera K_AB1 y K_AB2 y iv1 
+
+			SecretKey sk_srv = f.csk1(str_llave);
+			SecretKey sk_mac = f.csk2(str_llave);
+			
+			String str_consulta = reader.readLine();
+			String str_mac = reader.readLine();
+			String str_iv1 = reader.readLine();
+			byte[] byte_consulta = str2byte(str_consulta);
+			byte[] byte_mac = str2byte(str_mac);
+			
+			byte[] iv1 = str2byte(str_iv1);
+			IvParameterSpec ivSpec1 = new IvParameterSpec(iv1);
+	    	byte[] descifrado = f.sdec(byte_consulta, sk_srv,ivSpec1);
+	    	boolean verificar = f.checkInt(descifrado, sk_mac, byte_mac);
+			System.out.println(dlg + "Integrity check:" + verificar);
+
+            // Envia al server el numero de consulta cifrado con K_AB1
+            writer.println(byte_consulta.toString());
+
+            // Envia al server el codigo de autenticacion del num de consulta con K_AB2 
+            writer.println(byte_mac.toString());
+
+            // Envia al server el vector de inicializacion 
+            writer.println(iv1.toString());
 
 
         } catch (IOException e) {
