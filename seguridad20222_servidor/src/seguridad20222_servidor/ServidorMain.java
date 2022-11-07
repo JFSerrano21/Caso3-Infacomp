@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 public class ServidorMain {
-	
+	public static Semaphore semaforo;
 	private static ServerSocket ss;	
 	private static final String ID = "Main Server: ";
 	private static int puerto = 4030;
@@ -47,8 +48,9 @@ public class ServidorMain {
 			}
 
 			try { 
-				// Crea un delegado por cliente. Atiende por conexion. 
-				//semaforo.acquire();
+				// Crea un delegado por cliente. Atiende por conexion.
+				semaforo = new Semaphore(1);
+				semaforo.acquire();
 				Socket sc = ss.accept();
 				System.out.println(ID + " delegate " + idThread + ": accepting client - done");
 				int pos = idThread % 3;
@@ -59,6 +61,8 @@ public class ServidorMain {
 			} catch (IOException e) {
 				System.out.println(ID + " delegate " + idThread + ": accepting client - ERROR");
 				e.printStackTrace();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 		}
 

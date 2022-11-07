@@ -59,14 +59,14 @@ public class SrvThread extends Thread{
 
 	    try {
 
-			PrivateKey privadaServidor = f.read_kmin("datos_asim_srv.pri",dlg);
-			PublicKey publicaServidor = f.read_kplus("datos_asim_srv.pub",dlg);
+			PrivateKey privadaServidor = f.read_kmin("seguridad20222_servidor/datos_asim_srv.pri",dlg);
+			PublicKey publicaServidor = f.read_kplus("seguridad20222_servidor/datos_asim_srv.pub",dlg);
 			PrintWriter ac = new PrintWriter(sc.getOutputStream() , true);
 			BufferedReader dc = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 				    	
 			linea = dc.readLine();
 			System.out.println(dlg + "reading request: " + linea);
-    		
+    		// Aqui empieza a trabajar con lo que le llegaron
     		generateGandP();
 			SecureRandom r = new SecureRandom();
 			int x = Math.abs(r.nextInt());
@@ -83,6 +83,7 @@ public class SrvThread extends Thread{
     		ac.println(str_valor_comun);
     		
     		if (mod==0) {
+				// Sending firm of G,P,Gx
     			exito = opt0(str_valor_comun, ac, dc);
     		} else if (mod==1){
     			exito = opt1( str_valor_comun, ac, dc, bix, privadaServidor);
