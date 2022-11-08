@@ -113,7 +113,7 @@ public class CteThread extends Thread {
             IvParameterSpec ivSpec1 = new IvParameterSpec(arr);
 
             //Ciframos el numero de consulta con la llave K_AB1
-            byte[] rta_consulta = f.senc(generateIvBytes(), sk_srv, ivSpec1, Integer.toString(id));
+            byte[] rta_consulta = f.senc(arr, sk_srv, ivSpec1, Integer.toString(id));
 
             //Envia el numero de consulta cifrado
             String str_Consulta = byte2str(rta_consulta);
@@ -127,12 +127,9 @@ public class CteThread extends Thread {
             writer.println(str_aut);
 
 
-            //Create the Initialization Vector iv1
-            byte[] iv1 = new byte[16];
-	        new SecureRandom().nextBytes(iv1);
 
             //Sends the iv1 vector to the server
-            String siv1 = byte2str(iv1);
+            String siv1 = byte2str(arr);
             writer.println(siv1);
 
 
