@@ -8,9 +8,12 @@ import java.net.Socket;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random; 
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import java.nio.charset.StandardCharsets;
+import java.lang.Integer;
 
 public class CteThread extends Thread {
     private Socket sc = null;
@@ -64,6 +67,7 @@ public class CteThread extends Thread {
 
             // verificamos mensaje firmado y repsondemos acordemente
             String mensaje = g.toString()+","+p.toString()+","+Gx;
+
             boolean respuesta = f.checkSignature(publicaServidor, firma, mensaje);
 
             if(respuesta == true){
@@ -96,39 +100,75 @@ public class CteThread extends Thread {
             String str_llave = llave_maestra.toString();
             System.out.println(dlg + " llave maestra: " + str_llave);
 
-            //Genera K_AB1 y K_AB2 y iv1 
-
+            //Crea las dos llaves K_AB1 y K_AB2  
 			SecretKey sk_srv = f.csk1(str_llave);
+
 			SecretKey sk_mac = f.csk2(str_llave);
 			
-			String str_consulta = reader.readLine();
-			String str_mac = reader.readLine();
-			String str_iv1 = reader.readLine();
-			byte[] byte_consulta = str2byte(str_consulta);
-			byte[] byte_mac = str2byte(str_mac);
-			
-			byte[] iv1 = str2byte(str_iv1);
-			IvParameterSpec ivSpec1 = new IvParameterSpec(iv1);
-	    	byte[] descifrado = f.sdec(byte_consulta, sk_srv,ivSpec1);
-	    	boolean verificar = f.checkInt(descifrado, sk_mac, byte_mac);
-			System.out.println(dlg + "Integrity check:" + verificar);
+            //Generamos el numero de consulta aleatorio 
 
-            // Envia al server el numero de consulta cifrado con K_AB1
-            writer.println(byte_consulta.toString());
+            Random rd = new Random();
+            byte[] arr = new byte[16];
+            rd.nextBytes(arr);
+            IvParameterSpec ivSpec1 = new IvParameterSpec(arr);
 
-            // Envia al server el codigo de autenticacion del num de consulta con K_AB2 
-            writer.println(byte_mac.toString());
+            //Ciframos el numero de consulta con la llave K_AB1
+            byte[] rta_consulta = f.senc(generateIvBytes(), sk_srv, ivSpec1, Integer.toString(id));
 
-            // Envia al server el vector de inicializacion 
-            writer.println(iv1.toString());
+            //Envia el numero de consulta cifrado
+            String str_Consulta = byte2str(rta_consulta);
+            writer.println(str_Consulta);
+ 
+            //Generamos el codigo de autenticacion del numero de consulta 
+            byte [] rta_mac = f.hmac(arr, sk_mac);
+
+            //Envia el codigo de autenticacion
+            String str_aut = byte2str(rta_mac);
+            writer.println(str_aut);
 
 
+            //Create the Initialization Vector iv1
+            byte[] iv1 = new byte[16];
+	        new SecureRandom().nextBytes(iv1);
+
+            //Sends the iv1 vector to the server
+            String siv1 = byte2str(iv1);
+            writer.println(siv1);
+
+
+
+
+
+            String str_consultaServidor = reader.readLine();
+			String str_macServidor = reader.readLine();
+			String str_iv2Servidor = reader.readLine();
+			byte[] byte_consultaServidor = str2byte(str_consultaServidor);
+			byte[] byte_macServidor = str2byte(str_macServidor);
+			byte[] iv2 = str2byte(str_iv2Servidor);
+			IvParameterSpec ivSpec2 = new IvParameterSpec(iv2);
+
+			//Decifran y verifican 
+	    	byte[] descifrado = f.sdec(byte_consultaServidor, sk_srv,ivSpec2);
+	    	boolean verificar = f.checkInt(descifrado, sk_mac, byte_macServidor);
+			System.out.println(dlg + "Integrity check:" + verificar);    		
+
+	    	if (verificar) {
+	        	writer.println("OK");
+	        	
+	    	} else {
+	    		// In this case, a client send query and MAC that do not check
+	    		String mensaje2 = "ERROR";
+	        	writer.println(mensaje);
+	    	}
+
+            sc.close(); 
+            
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        return; 
     }
 
     private BigInteger G2Y(BigInteger base, BigInteger y, BigInteger modulo) {
@@ -159,4 +199,10 @@ public class CteThread extends Thread {
         }
         return ret;
     }
+
+    private byte[] generateIvBytes() {
+	    byte[] iv = new byte[16];
+	    new SecureRandom().nextBytes(iv);
+	    return iv;
+	}
 }

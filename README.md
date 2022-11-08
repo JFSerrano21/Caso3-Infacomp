@@ -33,5 +33,7 @@ Responsabilidades:
 |12|  VEGA(TheMike) | Cliente Verifica respuesta de ambos cifrados |
 |13|  VEGA(TheMike) | Cliente manda si acepta o no la respuesta |
 
-    
+
+
+
 

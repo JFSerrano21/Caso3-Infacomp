@@ -257,9 +257,10 @@ public class SrvThread extends Thread{
 			String str_iv1 = dc.readLine();
 			byte[] byte_consulta = str2byte(str_consulta);
 			byte[] byte_mac = str2byte(str_mac);
-			
 			byte[] iv1 = str2byte(str_iv1);
 			IvParameterSpec ivSpec1 = new IvParameterSpec(iv1);
+
+			//Decifran y verifican
 	    	byte[] descifrado = f.sdec(byte_consulta, sk_srv,ivSpec1);
 	    	boolean verificar = f.checkInt(descifrado, sk_mac, byte_mac);
 			System.out.println(dlg + "Integrity check:" + verificar);    		
